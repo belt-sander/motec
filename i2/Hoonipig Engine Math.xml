@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<Maths Locale="English_United States.1252" DefaultLocale="C" Id="Hoonipig Engine Math">
+ <MathConstants>
+  <MathConstant Name="motecRAirConstant" Value="287.0" Unit=""/>
+ </MathConstants>
+ <MathItems>
+  <MathExpression Id="horsepowerEstimated" DisplayUnit="hp" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'Inlet Mass Flow' [lb/min]*10 
+
+//+ 'nitrousHorsepowerFogger' [hp] + 'nitrousHorsepowerDirect' [hp]" SampleRate="0" Unit="hp"/>
+  <MathExpression Id="torqueEstimated" DisplayUnit="ft.lbf" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="('horsepowerEstimated' [hp]*5252)/'Engine Speed' [rpm]" SampleRate="0" Unit="ft.lbf"/>
+  <MathExpression Id="differentialFuelPressure" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="'Fuel Pressure' [psi]-'Boost Pressure' [psi g]" SampleRate="0" Unit=""/>
+  <MathExpression Id="gatedManifoldPressure" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="'Inlet Manifold Pressure' [psi]-14.5" SampleRate="0" Unit=""/>
+  <MathExpression Id="calculatedGear" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'Engine Speed' [rpm]/'Vehicle Speed' [mph]
+
+" SampleRate="0" Unit=""/>
+  <MathExpression Id="calculatedSlip" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="(('Wheel Speed Rear Drive' [mph]/'Wheel Speed Front Left' [mph]) * 100) - 100
+
+" SampleRate="0" Unit=""/>
+  <MathExpression Id="derivativeWheelSpeedCalc" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="derivative((('Wheel Speed Rear Left Slip' [km/h]+'Wheel Speed Rear Right Slip' [km/h])/2))" SampleRate="0" Unit=""/>
+  <MathFilter Id="derivativeWheelSpeedCalc" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" SampleRate="0" Unit="" EngineFlags="7" Samples="25"/>
+  <MathExpression Id="derivativeConstant" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="400
+
+" SampleRate="0" Unit=""/>
+  <MathExpression Id="slipConstant" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="20" SampleRate="0" Unit=""/>
+  <MathExpression Id="gatedThrottlePedal" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="choose('Throttle Position' [%] &gt; 30 and 'Throttle Position' [%] &lt; 50, 1, 0)" SampleRate="0" Unit=""/>
+  <MathExpression Id="fuelVolumeToHorsepower" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="'Fuel Volume' [ul] / 'horsepowerEstimated'" SampleRate="0" Unit=""/>
+  <MathExpression Id="mapEmapRatio" DisplayUnit="%" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="//'Inlet Manifold Pressure' [kPa]/(('Exhaust Pressure Bank 1' [kPa]+'Exhaust Pressure Bank 2' [kPa]) / 2)
+
+//'Exhaust Pressure' [kPa]/'Inlet Manifold Pressure' [kPa]
+
+filter(choose('Race Time' [s]&gt;0,'Exhaust Pressure' [psi]/'Boost Pressure' [psi g], 0), 3)
+" SampleRate="0" Unit="ratio"/>
+  <MathExpression Id="runAccelLong" DisplayUnit="G" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="choose('Race Time' [s] &gt; 0, 'Obsidian MG Dynamica IMU Relative Acceleration Accel X' [G], 0)" SampleRate="0" Unit="G"/>
+  <MathExpression Id="velX" DisplayUnit="m/s" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="integrate('runAccelLong' [m/s/s])
+
+//23.8 is gps speed scalar" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="gpsHeadingCorr" DisplayUnit="deg" DisplayDPS="2" DisplayColorIndex="4" Interpolate="1" Script="choose('Race Time' [s] &gt; 0.3, 'GPS True Course' [deg]-62.9, 0)
+
+//'GPS True Course' [deg]-62.9
+
+//offset for maryland international raceway" SampleRate="0" Unit="deg"/>
+  <MathExpression Id="dynYawCorr" DisplayUnit="deg" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="choose('Race Time' [s] &gt; 0.5, 'Obsidian MG Dynamica IMU Yaw' [deg] - 0.56, 0)
+
+//'GPS True Course' [deg]-62.9
+
+//offset for maryland international raceway" SampleRate="0" Unit="deg"/>
+  <MathExpression Id="runGyroLong" DisplayUnit="deg/s" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="choose('Race Time' [s]&gt;0, 'Obsidian MG Dynamica IMU Angular Speed Y' [deg/s], 0)" SampleRate="0" Unit="deg/s"/>
+  <MathExpression Id="pitchEstimate" DisplayUnit="deg" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="integrate('runGyroLong' [deg/s]) * -1" SampleRate="0" Unit="deg"/>
+  <MathExpression Id="pressureRatio" DisplayUnit="ratio" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="(('Intercooler Outlet Bank 1 Pressure' [kPa]+'Intercooler Outlet Bank 2 Pressure' [kPa])/2)/'Ambient Pressure' [kPa a]" SampleRate="0" Unit="ratio"/>
+  <MathExpression Id="correctedVE" DisplayUnit="%" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="'Engine Efficiency' [%]*0.8
+" SampleRate="0" Unit="%"/>
+  <MathExpression Id="inletMassFlowDiv2" DisplayUnit="lb/min" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="'Inlet Mass Flow' [lb/min]/2" SampleRate="0" Unit="lb/min"/>
+  <MathExpression Id="fuelModelRevLoad" DisplayUnit="kg" DisplayDPS="2" DisplayColorIndex="4" Interpolate="1" Script="'Inlet Manifold Pressure' [Pa] *
+'Engine Load Fuel Vapour Correction' [ratio] *
+(0.0038 / //displacement in m^3
+6) *
+(1 / ('motecRAirConstant' [] * ('Engine Charge Temperature' [C]+273.15)))" SampleRate="0" Unit="kg"/>
+  <MathExpression Id="rangeGear" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="range_change(&quot;Gear&quot;)" SampleRate="0" Unit=""/>
+  <MathExpression Id="chargeTempDelta" DisplayUnit="F" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'Inlet Air Temperature' [F]-'Engine Charge Temperature' [F]" SampleRate="0" Unit="F"/>
+  <MathExpression Id="intercoolerTempDelta" DisplayUnit="F" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'Inlet Air Temperature' [F]-(('Intercooler Outlet Bank 1 Temperature' [F]+'Intercooler Outlet Bank 2 Temperature' [F])/2)" SampleRate="0" Unit="F"/>
+  <MathExpression Id="intercoolerPressDelta" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="'Inlet Manifold Pressure' [kPa]-(('Intercooler Outlet Bank 1 Pressure' [kPa]+'Intercooler Outlet Bank 2 Pressure' [kPa])/2)" SampleRate="0" Unit="kPa"/>
+  <MathExpression Id="gatedICPressDelta" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="choose('Throttle Position' [%]&gt;50,'intercoolerPressDelta' [psi],invalid())" SampleRate="0" Unit="kPa"/>
+  <MathExpression Id="raceTimeVelocity" DisplayUnit="m/s" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="choose('Race Time' [s]&gt;0,'Obsidian MG Development Inertial GPS Forward Velocity' [m/s], 0)" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="raceTimeVelDistance" DisplayUnit="m" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="integrate('raceTimeVelocity' [m/s])" SampleRate="0" Unit="m"/>
+  <MathExpression Id="60ft_mark" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="choose('raceTimeVelDistance' [ft] ==60, 1, 0)" SampleRate="0" Unit=""/>
+  <MathExpression Id="filteredLongAccelInertial" DisplayUnit="m/s/s" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="filter('Obsidian MG Development Inertial GPS Accel X' [G],10)" SampleRate="0" Unit="m/s/s"/>
+  <MathExpression Id="ins_vel_3d" DisplayUnit="mph" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="sqrt(('ins_body_vel_x' [m/s]^2) + 'ins_body_vel_y' [m/s]^2 + 'ins_body_vel_z' [m/s]^2)" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="ins_vel_2d" DisplayUnit="mph" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="sqrt(('ins_body_vel_x' [m/s]^2) + 'ins_body_vel_y' [m/s]^2)" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="ins_pitch_scale" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="'ins_pitch' [deg]* 6" SampleRate="0" Unit=""/>
+  <MathExpression Id="ins_accel_x_gated" DisplayUnit="G" DisplayDPS="4" DisplayColorIndex="1" Interpolate="1" Script="choose('Engine Speed Limit' [rpm] &gt; 8500 &amp;&amp; 'Brake State' == 0 , 'ins_accel_x' [G] - 0.024592, 0)" SampleRate="0" Unit="G"/>
+  <MathExpression Id="ins_int_vel_x" DisplayUnit="mph" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="integrate('ins_accel_x_gated' [m/s/s])
+
+//subtract to offset lazy integration implementation
+" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="ins_gyro_y_gated" DisplayUnit="rad/s" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="choose('Brake State'==0, 'ins_gyro_y_rad' [rad/s], 0)" SampleRate="0" Unit="rad/s"/>
+  <MathExpression Id="ins_int_pitch_y" DisplayUnit="deg" DisplayDPS="2" DisplayColorIndex="4" Interpolate="1" Script="integrate('ins_gyro_y_gated' [rad/s])
+
+//lazy integration " SampleRate="0" Unit="rad"/>
+  <MathExpression Id="ins_dist_trav" DisplayUnit="ft" DisplayDPS="2" DisplayColorIndex="6" Interpolate="1" Script="integrate('ins_int_vel_x' [m/s])
+
+//lazy integration" SampleRate="0" Unit="m"/>
+  <MathExpression Id="ins_accel_y_gated" DisplayUnit="G" DisplayDPS="2" DisplayColorIndex="7" Interpolate="1" Script="choose('Engine Speed Limit' [rpm] &gt; 8500 &amp;&amp; 'Brake State' == 0 , 'ins_accel_y' [G] - 0.024651, 0)" SampleRate="0" Unit="G"/>
+  <MathExpression Id="ins_int_vel_y" DisplayUnit="m/s" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="integrate('ins_accel_y_gated' [m/s/s])
+" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="ins_accel_z_gated" DisplayUnit="G" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="choose('Engine Speed Limit' [rpm] &gt; 8500 &amp;&amp; 'Brake State' == 0 , 'ins_accel_z' [G] - (-1.014764),0)" SampleRate="0" Unit="G"/>
+  <MathExpression Id="ins_int_vel_z" DisplayUnit="m/s" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="integrate('ins_accel_z_gated' [m/s/s])
+" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="ins_dist_trav_body_x" DisplayUnit="ft" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="integrate('ins_body_vel_x' [m/s])" SampleRate="0" Unit="m"/>
+  <MathExpression Id="ax_mean" DisplayUnit="m/s/s" DisplayDPS="6" DisplayColorIndex="1" Interpolate="1" Script="stat_mean('ins_accel_x' [m/s/s], ('Wheel Speed M1 FL' [mph] &lt; 0.5))" SampleRate="0" Unit="m/s/s"/>
+  <MathExpression Id="ay_mean" DisplayUnit="m/s/s" DisplayDPS="6" DisplayColorIndex="2" Interpolate="1" Script="stat_mean('ins_accel_y' [m/s/s], ('Wheel Speed M1 FL' [mph] &lt; 0.5))" SampleRate="0" Unit="m/s/s"/>
+  <MathExpression Id="az_mean" DisplayUnit="m/s/s" DisplayDPS="6" DisplayColorIndex="3" Interpolate="1" Script="stat_mean('ins_accel_z' [m/s/s], ('Wheel Speed M1 FL' [mph] &lt; 0.5))" SampleRate="0" Unit="m/s/s"/>
+  <MathExpression Id="slip_vy_vx" DisplayUnit="m/s" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="'ins_body_vel_y' [m/s] / 'ins_body_vel_x' [m/s]" SampleRate="0" Unit="m/s"/>
+  <MathExpression Id="ins_slip_angle" DisplayUnit="deg" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="choose('ins_body_vel_x' [mph] &gt; 0.5,  atan('ins_body_vel_y' [m/s]/'ins_body_vel_x' [m/s]), 0)" SampleRate="0" Unit="rad"/>
+ </MathItems>
+</Maths>

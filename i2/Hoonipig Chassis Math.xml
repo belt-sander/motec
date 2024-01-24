@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<Maths Locale="English_United States.1252" DefaultLocale="C" Id="Hoonipig Chassis Math">
+ <MathItems>
+  <MathExpression Id="integrate_fuel_volume" DisplayUnit="ul" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="integrate('CAN ECU Fuel Volume')" SampleRate="0" Unit="ul"/>
+  <MathExpression Id="std_dev_front_ram" DisplayUnit="mm" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="stat_std_dev('Hydraulic Control Front Ram' [mm])" SampleRate="0" Unit="mm"/>
+  <MathExpression Id="std_dev_rear_ram" DisplayUnit="mm" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="stat_std_dev('Hydraulic Control Rear Ram' [mm])" SampleRate="0" Unit="mm"/>
+  <MathExpression Id="zero" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="0" SampleRate="0" Unit=""/>
+  <MathExpression Id="max_b1_wastegate_temp" DisplayUnit="C" DisplayDPS="2" DisplayColorIndex="4" Interpolate="1" Script="stat_max('Wastegate Control Bank 1 Temperature' [C])" SampleRate="0" Unit="C"/>
+  <MathExpression Id="max_b2_wastegate_temp" DisplayUnit="C" DisplayDPS="2" DisplayColorIndex="5" Interpolate="1" Script="stat_max('Wastegate Control Bank 2 Temperature' [C])" SampleRate="0" Unit="C"/>
+  <MathExpression Id="min_chassis_state" DisplayDPS="2" DisplayColorIndex="6" Interpolate="1" Script="stat_min('CAN PBX State Chassis Systems')" SampleRate="0" Unit=""/>
+  <MathExpression Id="abs_front_balance" DisplayUnit="ratio" DisplayDPS="2" DisplayColorIndex="7" Interpolate="1" Script="choose('CAN ABS Brake Switch'&gt;0, 'CAN ABS Brake Pressure Front Balance' [%], 0)" SampleRate="0" Unit="%"/>
+  <MathExpression Id="max_fp1_current" DisplayUnit="A" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="stat_max('CAN PBX Current Fuel Pump 1' [A])
+" SampleRate="0" Unit="A"/>
+  <MathExpression Id="max_fp2_current" DisplayUnit="A" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="stat_max('CAN PBX Current Fuel Pump 2' [A])" SampleRate="0" Unit="A"/>
+  <MathExpression Id="max_fp3_current" DisplayUnit="A" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="stat_max('CAN PBX Current Fuel Pump 3' [A])" SampleRate="0" Unit="A"/>
+  <MathExpression Id="max_lift_pump_12_current" DisplayUnit="A" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="stat_max('CAN PBX Current Lift Pumps 12' [A])" SampleRate="0" Unit="A"/>
+  <MathExpression Id="max_lift_pump_34_current" DisplayUnit="A" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="stat_max('CAN PBX Current Lift Pumps 34' [A])" SampleRate="0" Unit="A"/>
+  <MathExpression Id="abs_state_scale" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'CAN ABS ABS Active'*25" SampleRate="0" Unit=""/>
+  <MathExpression Id="max_ts_bank_1" DisplayUnit="rpm" DisplayDPS="0" DisplayColorIndex="0" Interpolate="1" Script="stat_max('CAN ECU Turbo Speed Bank 1' [rpm])" SampleRate="0" Unit="rpm"/>
+  <MathExpression Id="max_ts_bank_2" DisplayUnit="rpm" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="stat_max('CAN ECU Turbo Speed Bank 2' [rpm])" SampleRate="0" Unit="rpm"/>
+  <MathExpression Id="min_bat_voltage" DisplayUnit="V" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="stat_min('CAN MSEL Voltage Output' [V])" SampleRate="0" Unit="V"/>
+  <MathExpression Id="min_bat_voltage_running" DisplayUnit="V" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="choose('CAN ECU Engine Speed' [rpm] &gt; 4000, 'min_bat_voltage' [V], 0)" SampleRate="0" Unit="V"/>
+  <MathExpression Id="max_charge_temp_1" DisplayUnit="C" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="stat_max('Engine Bank 1 Pre Intercooler Temp' [C])" SampleRate="0" Unit="C"/>
+  <MathExpression Id="max_charge_temp_2" DisplayUnit="C" DisplayDPS="2" DisplayColorIndex="4" Interpolate="1" Script="stat_max('Engine Bank 2 Pre Intercooler Temp' [C])" SampleRate="0" Unit="C"/>
+  <MathExpression Id="gated_msel_current" DisplayUnit="A" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="choose('CAN ECU Engine Speed' [rpm] &gt; 5000, 'CAN MSEL Current' [A], 0)" SampleRate="0" Unit="A"/>
+  <MathExpression Id="chassis_front_left_shock_offset" DisplayUnit="mm" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="'Chassis Front Left Shock' [mm] + 16.4" SampleRate="0" Unit="mm"/>
+  <MathExpression Id="chassis_front_right_shock_offset" DisplayUnit="mm" DisplayDPS="2" DisplayColorIndex="3" Interpolate="1" Script="'Chassis Front Right Shock' [mm] + 16.3" SampleRate="0" Unit="mm"/>
+  <MathExpression Id="gated_pedal" DisplayUnit="%" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'CAN ECU Throttle Pedal' [%] - 80" SampleRate="0" Unit="%"/>
+  <MathExpression Id="eng_spd_derivative" DisplayUnit="rpm/s" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="derivative('CAN ECU Engine Speed' [rpm])" SampleRate="0" Unit="rpm/s"/>
+  <MathExpression Id="gated_eng_spd_derivative" DisplayUnit="rpm/s" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="choose('CAN ECU Throttle Pedal' [%] &gt; 50, 'eng_spd_derivative' [rpm/s],0)" SampleRate="0" Unit="rpm/s"/>
+  <MathExpression Id="ts_avg" DisplayUnit="rpm" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="( 'CAN ECU Turbo Speed Bank 1' [rpm] + 'CAN ECU Turbo Speed Bank 2' [rpm] ) / 2" SampleRate="0" Unit="rpm"/>
+  <MathExpression Id="ts_derivative" DisplayUnit="rpm/s" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="derivative('ts_avg' [rpm])" SampleRate="0" Unit="rpm/s"/>
+  <MathExpression Id="min_low_side_fp" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="choose('CAN ECU Engine Speed' [rpm] &gt; 2000, stat_min('CAN ECU Fuel Pressure' [kPa]), 0)" SampleRate="0" Unit="kPa"/>
+  <MathExpression Id="min_high_side_fp" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="stat_min('Engine Direct Supply' [kPa])" SampleRate="0" Unit="kPa"/>
+  <MathExpression Id="diff_fp" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="'CAN ECU Fuel Pressure' [kPa] - 'CAN ECU Inlet Manifold Pressure' [kPa]" SampleRate="0" Unit="kPa"/>
+  <MathExpression Id="max_fuel_flow" DisplayUnit="l/h" DisplayDPS="2" DisplayColorIndex="0" Interpolate="1" Script="stat_max('CAN ECU Fuel Flow' [l/h])" SampleRate="0" Unit="l/h"/>
+  <MathExpression Id="ic_p_drop_b1" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="1" Interpolate="1" Script="'Engine Bank 1 Pre Intercooler Boost' [kPa] - 'Engine Bank 1 Post Intercooler Boost' [kPa]" SampleRate="0" Unit="kPa"/>
+  <MathExpression Id="ic_p_drop_b2" DisplayUnit="kPa" DisplayDPS="2" DisplayColorIndex="2" Interpolate="1" Script="'Engine Bank 2 Pre Intercooler Boost' [kPa] - 'Engine Bank 2 Post Intercooler Boost' [kPa]" SampleRate="0" Unit="kPa"/>
+ </MathItems>
+</Maths>
