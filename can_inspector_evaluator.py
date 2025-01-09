@@ -90,9 +90,10 @@ def main():
     # Process the file
     can_id_rates = count_and_rate_can_ids(args.filepath)
     
-    # Printing the average rates for each CANId
-    for can_id, rate in can_id_rates.items():
-        print(f"Average rate of CANId {can_id} is {rate:.2f} messages per second.")
+    # Printing the average rates for each CANId in numerical order
+    print("Average rates for each CANId:")
+    for can_id in sorted(can_id_rates.keys(), key=lambda x: int(x, 16)):
+        print(f"Average rate of CANId {can_id} is {can_id_rates[can_id]:.2f} messages per second.")
     
     # Print all packets for the specified target CANId
     print(f"\nData packets for CANId {args.target_can_id}:")
