@@ -1,0 +1,50 @@
+; C:\Users\Sander Marques\Obsidian\motec\peak_pcan_usb_transmit_config_v53.xmt
+;   CAN messages saved by PCAN-View v4.3.0.596
+;
+; Columns descriptions:
+; ~~~~~~~~~~~~~~~~~~~~~
+; +Message ID
+; |            +Cycle time in ms (0=manual)
+; |            |  +Data length
+; |            |  |  +Frame type
+; |            |  |  |  +Message data
+; |            |  |  |  |
+006h        1000  4  D 06h 66h 12h 00h  Paused ; Obsidian INS Feature // AHRS Off
+006h        1000  6  D 06h 66h 11h 01h 77h 77h  Paused ; Obsidian INS Feature // Enable Accel Filter
+006h        1000  4  D 06h 66h 11h 00h  Paused ; Obsidian INS Feature // Disable Accel Filter
+006h        1000  3  D 06h 66h 66h  Paused ; Obsidian INS Feature // WRITE SETTINGS TO MEMORY
+006h        1000  3  D 06h 66h 67h  Paused ; Obsidian INS Feature // WRITE DEFAULTS
+006h        1000  4  D 06h 66h 10h 00h  Paused ; Obsidian INS Feature // Adaptive Filter Off
+006h        1000  4  D 06h 66h 10h 01h  Paused ; Obsidian INS Feature // Adaptive Filter On
+006h        1000  6  D 06h 66h 14h FBh 11h F0h  Paused ; Obsidian INS Feature // Set Antenna Lever Arm
+006h        1000  4  D 06h 66h 40h 00h  Paused ; Obsidian INS Feature // Dead Reckoning Disable
+006h        1000  4  D 06h 66h 40h 01h  Paused ; Obsidian INS Feature // Dead Reckoning Enable
+006h         100  5  D 06h 66h 41h 01h 67h  Paused ; Obsidian INS Feature // Dead Reckoning Bias Control
+006h        1000  8  D 06h 66h 13h 43h 24h 32h 43h 20h  Paused ; Obsidian INS Feature // Adaptive Filtering Settings
+006h        1000  5  D 06h 66h 42h 01h 8Ch  Paused ; Obsidian INS Feature // Dead Reckoning Entry Speed
+006h        1000  4  D 06h 66h 15h 01h  Paused ; Obsidian INS Feature // Yaw Tare
+006h        1000  4  D 06h 66h 21h 01h  Paused ; Obsidian INS / IMU Feature // Baud Control
+006h        1000  4  D 06h 66h 30h 00h  Paused ; Obsidian INS Feature // GPS Simulation
+006h        1000  4  D 06h 66h 20h 01h  Paused ; Obsidian IMU Feature // Rate Control High Speed
+006h        1000  4  D 06h 66h 22h 01h  Paused ; Obsidian IMU Feature // Rate Control Medium Speed
+006h        1000  4  D 06h 66h 23h 04h  Paused ; Obsidian IMU Feature // Rate Control Low Speed
+006h        1000  8  D FAh 04h 8Ah FBh 75h F9h DEh 00h  Paused ; Obsidian INS TEST // Reference Frame Rotation (1.16, -1.16, -1.57)
+006h        1000  8  D FAh 0Ch 49h 00h 00h 00h 00h 00h  Paused ; Obsidian INS // Reference Frame Rotation (3.14, 0, 0)
+006h        1000  8  D FAh FFh B7h 00h 49h FAh ECh 00h  Paused ; Obsidian INS // Reference Frame Rotation (0, 0, 0)
+006h        1000  8  D FAh 06h 22h 00h 00h 00h 00h 00h  Paused ; Obsidian INS // Reference Frame Rotation (0, 0, 0.785)
+007h         200  8  D 00h 00h 60h 01h 00h 00h 00h 00h  Paused ; Velocity Test
+006h           1  8  D 00h 00h 00h 00h 00h 00h 00h 00h  Paused ; Spam Test
+006h        1000  8  D FAh 00h 00h 00h 00h 00h 00h 00h  Paused ; Obsidian INS // Reference Frame Rotation (0, 0, 0)
+10Fh          10  8  D 00h 00h 20h 00h 00h 00h 00h 00h  Paused ; Megaline Shift Req
+205h           1  8  D A7h 0Ah 00h 00h E8h 03h 00h 00h  Paused ; Test Shift R
+205h           1  8  D 9Dh 2Ah 00h 00h E8h 03h 00h 00h  Paused ; Test Shift N
+205h           1  8  D 78h 43h 00h 00h E8h 03h 00h 00h  Paused ; Test Shift 1
+205h           1  8  D FBh 66h 00h 00h E8h 03h 00h 00h  Paused ; Test Shift 2
+205h           1  8  D 7Eh 8Ah 00h 00h E8h 03h 00h 00h  Paused ; Test Shift 3
+205h           1  8  D 01h AEh 00h 00h E8h 03h 00h 00h  Paused ; Test Shift 4
+205h           1  8  D 84h D1h 00h 00h E8h 03h 00h 00h  Paused ; Test Shift 5
+205h           1  8  D 07h F5h 00h 00h E8h 03h 00h 00h  Paused ; Test Shift 6
+791h           2  8  D FFh FFh FFh FFh FFh FFh FFh FFh  Paused ; Collision Test
+006h        1000  4  D 06h 66h 24h 04h  Paused ; Obsidian INS Feature // Rate Control Group D
+006h        1000  4  D 06h 66h 25h 0Fh  Paused ; Obsidian INS Feature // Rate Control Group E
+006h        1000  8  D 66h 75h 63h 6Bh 8Eh 00h 00h 00h  Paused ; Obsidian INS // SET SERIAL PRIVATE //
