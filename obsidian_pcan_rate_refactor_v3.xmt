@@ -1,0 +1,14 @@
+; Z:\Desktop\og\motec\obsidian_pcan_rate_refactor_v3.xmt
+;   CAN messages saved by PCAN-View v5.2.0.926
+;
+; Columns descriptions:
+; ~~~~~~~~~~~~~~~~~~~~~
+; +Message ID
+; |            +Cycle time in ms (0=manual)
+; |            |  +Data length
+; |            |  |  +Frame type
+; |            |  |  |  +Message data
+; |            |  |  |  |
+006h        1000  4  D 06h 66h 20h 01h  Paused ; Obsidian INS Feature // Rate Control High Speed
+006h        1000  4  D 06h 66h 22h 01h  Paused ; Obsidian INS Feature // Rate Control Medium Speed
+006h        1000  4  D 06h 66h 23h 03h  Paused ; Obsidian INS Feature // Rate Control Low Speed
