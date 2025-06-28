@@ -174,7 +174,7 @@ def main():
         'candump_asc': 'ASC (candump-style)',
         'vector_asc': 'ASC (Vector/MoTeC-style)'
     }
-    print(f"Detected file type: {type_map.get(file_type, 'Unknown')}")
+    print(f"\nDetected file type: {type_map.get(file_type, 'Unknown')}")
 
     can_id_data, first_ts, last_ts = analyze_can_log(args.filepath, file_type)
 
@@ -198,7 +198,7 @@ def main():
     print(f"Log duration:       {total_duration:.3f} seconds")
     print(f"Total bits sent:    {total_transmitted_bits} bits")
     print(f"Bus bit rate:       {args.bit_rate} Mbps")
-    print(f"Estimated Bus Load: {bus_load:.2f}%")
+    print(f"Estimated Bus Load: {bus_load:.2f}%\n")
 
     if args.target_can_id:
         print(f"\n--- Data Packets for CAN ID {args.target_can_id} ---")
