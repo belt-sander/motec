@@ -3,7 +3,6 @@
 import sys
 import argparse
 import re
-import binascii
 
 # Try to import cantools for DBC decoding
 try:
@@ -131,7 +130,6 @@ def extract_data_bytes(parts, file_type, line):
     try:
         if file_type == 'trc':
             # Format: Num Time Type ID DLC D0 D1 ...
-            # parts[5:] are usually the data bytes
             if len(parts) > 5:
                 for b in parts[5:]:
                     data_bytes.append(int(b, 16))
@@ -143,12 +141,9 @@ def extract_data_bytes(parts, file_type, line):
             
         elif file_type == 'vector_asc':
             # Format: Time Ch ID Rx/Tx d DLC D0 D1 ...
-            # Usually parts[6] begins the data if parts[5] is DLC
-            # Vector files can be variable, but data usually follows DLC
             dlc_index = 5
             if len(parts) > dlc_index + 1:
                 for b in parts[dlc_index+1:]:
-                    # Stop if we hit non-hex data (some files have strings at end)
                     try:
                         data_bytes.append(int(b, 16))
                     except ValueError:
@@ -158,13 +153,20 @@ def extract_data_bytes(parts, file_type, line):
     return data_bytes
 
 def print_decoded_line(db, can_id, data_bytes):
-    """Decodes and prints signals using the DBC."""
+    """Decodes and prints signals using the DBC in a column format."""
     if not db: return
     
     try:
         decoded = db.decode_message(can_id, data_bytes)
-        formatted_signals = ", ".join([f"{k}: {v}" for k, v in decoded.items()])
-        print(f"    └─ Decoded: {formatted_signals}")
+        print(f"    └─ Decoded:")
+        # Sort keys alphabetically or use definition order (default dict order is usually definition order)
+        for name, value in decoded.items():
+            # Print each signal on a new line with indentation
+            if isinstance(value, float):
+                print(f"        • {name}: {value:.4f}")
+            else:
+                print(f"        • {name}: {value}")
+
     except KeyError:
         print(f"    └─ Decoded: [ID 0x{can_id:X} not found in DBC]")
     except Exception as e:
@@ -250,7 +252,6 @@ def main():
         time_span = data['last_timestamp'] - data['first_timestamp']
         rate = (data['count'] - 1) / time_span if time_span > 0 and data['count'] > 1 else 0
         
-        # Add DBC Name lookup to the summary if available
         msg_name = ""
         if db:
             try:
