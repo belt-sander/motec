@@ -3,6 +3,7 @@
 import sys
 import argparse
 import re
+import math
 
 # Try to import cantools for DBC decoding
 try:
@@ -72,10 +73,20 @@ def analyze_can_log(filepath, file_type):
 
                     if file_type == 'trc':
                         if line.startswith(';'): continue
-                        if len(parts) < 5 or not parts[0].endswith(')'): continue
-                        timestamp = float(parts[1]) / 1000.0
-                        can_id_hex = parts[3]
-                        dlc = int(parts[4])
+                        
+                        # FORMAT 1: PCAN-View v2.0 (DT column present)
+                        if len(parts) >= 6 and parts[2] == 'DT':
+                            timestamp = float(parts[1]) / 1000.0  # Convert ms to seconds
+                            can_id_hex = parts[3]
+                            dlc = int(parts[5])
+                            
+                        # FORMAT 2: Legacy TRC
+                        elif len(parts) >= 5 and parts[0].endswith(')'):
+                            timestamp = float(parts[1]) / 1000.0
+                            can_id_hex = parts[3]
+                            dlc = int(parts[4])
+                        else:
+                            continue
 
                     elif file_type == 'candump_asc':
                         if not line.startswith('(') or len(parts) < 3: continue
@@ -84,7 +95,7 @@ def analyze_can_log(filepath, file_type):
                         if '#' in parts[2]: dlc = len(parts[2].split('#')[1]) // 2
                         elif len(parts) > 3 and parts[3].startswith('['): dlc = int(re.search(r'\[(\d+)\]', parts[3]).group(1))
                         else: dlc = 0
-                    
+
                     elif file_type == 'vector_asc':
                         if len(parts) < 6: continue
                         try:
@@ -94,31 +105,50 @@ def analyze_can_log(filepath, file_type):
                         can_id_hex = parts[2].rstrip('x')
                         dlc = int(parts[5])
 
-                    if timestamp is None: continue
-
-                    can_id = int(can_id_hex, 16)
-                    is_extended = can_id > 0x7FF or (file_type == 'vector_asc' and parts[2].endswith('x'))
-
-                    if first_ts is None: first_ts = timestamp
-                    last_ts = timestamp
-
-                    frame_bits = calculate_frame_bits(dlc, is_extended)
+                    # ---------------------------------------------------------
+                    # Data Accumulation Logic
+                    # ---------------------------------------------------------
                     
-                    if can_id in can_id_data:
-                        can_id_data[can_id]['count'] += 1
-                        can_id_data[can_id]['total_bits'] += frame_bits
-                        can_id_data[can_id]['last_timestamp'] = timestamp
-                    else:
-                        can_id_data[can_id] = {'count': 1, 'total_bits': frame_bits, 'first_timestamp': timestamp, 'last_timestamp': timestamp}
+                    if timestamp is not None and can_id_hex is not None:
+                        current_id = int(can_id_hex, 16)
+                        
+                        # Global Time Tracking
+                        if first_ts is None: first_ts = timestamp
+                        last_ts = timestamp
+                        
+                        # Initialize ID entry if new
+                        if current_id not in can_id_data:
+                            can_id_data[current_id] = {
+                                'count': 0, 
+                                'total_bits': 0, 
+                                'dlc': dlc,
+                                'last_timestamp': timestamp,
+                                'deltas': [] # List to store time intervals between packets
+                            }
+                        else:
+                            # Calculate time delta from previous packet of same ID
+                            prev_ts = can_id_data[current_id]['last_timestamp']
+                            delta = timestamp - prev_ts
+                            can_id_data[current_id]['deltas'].append(delta)
+                            can_id_data[current_id]['last_timestamp'] = timestamp
+                        
+                        # Update ID Stats
+                        can_id_data[current_id]['count'] += 1
+                        
+                        # Calculate Bits
+                        is_extended = len(can_id_hex) > 3
+                        frame_bits = calculate_frame_bits(dlc, is_extended)
+                        can_id_data[current_id]['total_bits'] += frame_bits
 
-                except (ValueError, IndexError, TypeError) as e:
+                except Exception:
                     continue
-    except Exception as e:
-        print(f"An unexpected error occurred while processing the file: {e}", file=sys.stderr)
+                    
+        return can_id_data, first_ts, last_ts
+
+    except FileNotFoundError:
+        print(f"Error: File not found {filepath}", file=sys.stderr)
         sys.exit(1)
-
-    return can_id_data, first_ts, last_ts
-
+        
 def calculate_bus_load(total_bits, duration, bit_rate_mbps):
     if duration <= 0: return 0.0
     total_possible_bits = bit_rate_mbps * 1e6 * duration
@@ -129,18 +159,22 @@ def extract_data_bytes(parts, file_type, line):
     data_bytes = bytearray()
     try:
         if file_type == 'trc':
-            # Format: Num Time Type ID DLC D0 D1 ...
-            if len(parts) > 5:
-                for b in parts[5:]:
+            # Check for PCAN v2.0 format (DT column present)
+            if len(parts) > 6 and parts[2] == 'DT':
+                # Data starts at index 6
+                for b in parts[6:]:
                     data_bytes.append(int(b, 16))
+            else:
+                # Legacy Format
+                if len(parts) > 5:
+                    for b in parts[5:]:
+                        data_bytes.append(int(b, 16))
                     
         elif file_type == 'candump_asc':
-            # Format: (Timestamp) Interface ID#DATA
             payload_str = parts[2].split('#')[1]
             data_bytes = bytearray.fromhex(payload_str)
             
         elif file_type == 'vector_asc':
-            # Format: Time Ch ID Rx/Tx d DLC D0 D1 ...
             dlc_index = 5
             if len(parts) > dlc_index + 1:
                 for b in parts[dlc_index+1:]:
@@ -159,9 +193,7 @@ def print_decoded_line(db, can_id, data_bytes):
     try:
         decoded = db.decode_message(can_id, data_bytes)
         print(f"    └─ Decoded:")
-        # Sort keys alphabetically or use definition order (default dict order is usually definition order)
         for name, value in decoded.items():
-            # Print each signal on a new line with indentation
             if isinstance(value, float):
                 print(f"        • {name}: {value:.4f}")
             else:
@@ -183,9 +215,12 @@ def print_can_id_packets(filepath, file_type, target_can_id, db=None):
                     if not parts: continue
                     line_can_id_hex = None
                     
-                    # Identification Logic
-                    if file_type == 'trc' and not line.strip().startswith(';') and len(parts) >= 4 and parts[0].endswith(')'):
-                        line_can_id_hex = parts[3]
+                    if file_type == 'trc' and not line.strip().startswith(';'):
+                        if len(parts) >= 6 and parts[2] == 'DT':
+                            line_can_id_hex = parts[3]
+                        elif len(parts) >= 4 and parts[0].endswith(')'):
+                            line_can_id_hex = parts[3]
+                            
                     elif file_type == 'candump_asc' and line.strip().startswith('(') and len(parts) >= 3:
                         line_can_id_hex = parts[2].split('#')[0]
                     elif file_type == 'vector_asc' and len(parts) >= 6:
@@ -197,8 +232,6 @@ def print_can_id_packets(filepath, file_type, target_can_id, db=None):
 
                     if line_can_id_hex and int(line_can_id_hex, 16) == target_id_int:
                         sys.stdout.write(line)
-                        
-                        # Perform Decoding if DBC is present
                         if db:
                             data = extract_data_bytes(parts, file_type, line)
                             if data:
@@ -246,20 +279,41 @@ def main():
         print("\nNo valid CAN data parsed.")
         return
 
-    print("\n--- Message Rate Analysis ---")
+    print("\n--- Message Rate & Jitter Analysis ---")
+    print(f"{'CAN ID':<15} {'Name':<20} {'Count':<8} {'Avg Rate (Hz)':<15} {'Std Dev (ms)':<15}")
+    print("-" * 80)
+
     for can_id in sorted(can_id_data.keys()):
         data = can_id_data[can_id]
-        time_span = data['last_timestamp'] - data['first_timestamp']
-        rate = (data['count'] - 1) / time_span if time_span > 0 and data['count'] > 1 else 0
         
+        # Calculate Average Rate
+        # Note: We use the sum of deltas to get the exact span between first and last packet of this specific ID
+        deltas = data['deltas']
+        count = data['count']
+        
+        if count > 1 and deltas:
+            duration = sum(deltas)
+            avg_rate = (count - 1) / duration if duration > 0 else 0
+            
+            # Calculate Standard Deviation of the intervals
+            avg_interval = duration / len(deltas)
+            variance = sum((x - avg_interval) ** 2 for x in deltas) / (len(deltas) - 1)
+            std_dev_s = math.sqrt(variance)
+            std_dev_ms = std_dev_s * 1000.0
+        else:
+            avg_rate = 0.0
+            std_dev_ms = 0.0
+        
+        # Get Name
         msg_name = ""
         if db:
             try:
-                msg_name = f" ({db.get_message_by_frame_id(can_id).name})"
+                msg = db.get_message_by_frame_id(can_id)
+                msg_name = msg.name[:19] # Truncate for display
             except:
-                msg_name = ""
-
-        print(f"CAN ID 0x{can_id:08X}{msg_name}: Count={data['count']:<5} Avg Rate={rate:>7.2f} Hz")
+                msg_name = "-"
+        
+        print(f"0x{can_id:04X}          {msg_name:<20} {count:<8} {avg_rate:<15.2f} {std_dev_ms:<15.4f}")
 
     # 2. Bus Load
     total_transmitted_bits = sum(d['total_bits'] for d in can_id_data.values())
@@ -269,7 +323,7 @@ def main():
     print(f"\n--- Bus Load Analysis ---")
     print(f"Estimated Bus Load: {bus_load:.2f}% (@ {args.bit_rate} Mbps)")
 
-    # 3. Print Specific Packet Data (Decoded if DBC provided)
+    # 3. Print Specific Packet Data
     if args.target_can_id:
         print(f"\n--- Data Packets for CAN ID {args.target_can_id} ---")
         print_can_id_packets(args.filepath, file_type, args.target_can_id, db)
