@@ -1,0 +1,137 @@
+; peak_pcan_usb_transmit_config_all_params.xmt
+;   CAN messages saved by PCAN-View v5.3.2.952 format
+;
+; Comprehensive transmit config covering every runtime-adjustable parameter
+; declared in the IMU (imu_can_cpp) and INS (ins_can_cpp_t32) firmware.
+; Tags: [IMU] = imu_can_cpp only, [INS] = ins_can_cpp_t32 only, [BOTH] = shared.
+;
+; All config messages are CAN ID 006h with the 0x06/0x66 magic prefix in bytes
+; 0 and 1 and the command code in byte 2. The one exception is IMU velocity
+; aiding which is on CAN ID 007h (bytes 0/1 ignored, command 0x60 in byte 2).
+;
+; All entries are Paused by default — unpause the row you want, hit transmit.
+;
+; Columns:
+; +Message ID
+; |           +Cycle time in ms (0=manual)
+; |           |  +Data length
+; |           |  |  +Frame type
+; |           |  |  |  +Message data
+; |           |  |  |  |
+;
+; ============================================================================
+; ATTITUDE FILTER / ADAPTIVE TUNING (0x10 / 0x11 / 0x12 / 0x13)
+; ============================================================================
+006h        1000  4  D 06h 66h 10h 00h  Paused ; [BOTH] Adaptive Filter OFF
+006h        1000  4  D 06h 66h 10h 01h  Paused ; [BOTH] Adaptive Filter ON
+006h        1000  4  D 06h 66h 11h 00h  Paused ; [BOTH] Accel/Gyro Filter OFF (resets windows to 4)
+006h        1000  6  D 06h 66h 11h 01h 08h 08h  Paused ; [BOTH] Accel/Gyro Filter ON (accel_samples, gyro_samples 1-119)
+006h        1000  4  D 06h 66h 12h 00h  Paused ; [INS] AHRS Aiding + Barometer OFF
+006h        1000  4  D 06h 66h 12h 01h  Paused ; [INS] AHRS Aiding + Barometer ON (default)
+006h        1000  8  D 06h 66h 13h 33h 55h 55h 66h 60h  Paused ; [BOTH] Adaptive Tuning (atX/atY atZ/afX afY/afZ btX/btY btZ/0) — default 3/5/6
+; ============================================================================
+; ANTENNA LEVER ARM & BASELINE (0x14 / 0x16)
+; ============================================================================
+006h        1000  6  D 06h 66h 14h 00h 00h 00h  Paused ; [INS] Antenna Lever Arm xT/yT/zT (sign bit 0x80, mag 0x7f, units 0.1m)
+006h        1000  6  D 06h 66h 14h 0Ah 00h 00h  Paused ; [INS] Antenna Lever Arm example (+1.0m, 0, 0)
+006h        1000  6  D 06h 66h 14h 8Ah 00h 00h  Paused ; [INS] Antenna Lever Arm example (-1.0m, 0, 0)
+006h        1000  6  D 06h 66h 16h 00h 00h 00h  Paused ; [INS] Antenna Baseline xT/yT/zT (sign bit + 0.1m mag)
+; ============================================================================
+; TARE (0x15)
+; ============================================================================
+006h        1000  4  D 06h 66h 15h 01h  Paused ; [BOTH] Yaw / Attitude Tare (software)
+; ============================================================================
+; GROUP RATE / BAUD / CAN ID (0x20 / 0x21 / 0x22 / 0x23 / 0x24 / 0x25 / 0x26)
+; Rate enum: 01=200Hz 02=100Hz 03=50Hz 04=25Hz 05=10Hz 06=5Hz 07=1Hz 0F=Disable FF=Enable
+; (IMU groups are twice as fast per enum — 01=400Hz etc. — but enum code is identical)
+; ============================================================================
+006h        1000  4  D 06h 66h 20h 01h  Paused ; [BOTH] Group A rate = max (INS 200Hz / IMU 400Hz)
+006h        1000  4  D 06h 66h 20h 02h  Paused ; [BOTH] Group A rate = half max (INS 100Hz / IMU 200Hz)
+006h        1000  4  D 06h 66h 20h 0Fh  Paused ; [BOTH] Group A DISABLE
+006h        1000  4  D 06h 66h 20h FFh  Paused ; [BOTH] Group A ENABLE
+006h        1000  4  D 06h 66h 21h 01h  Paused ; [BOTH] Baud = 1 Mbps (default, takes effect next power cycle)
+006h        1000  4  D 06h 66h 21h 02h  Paused ; [BOTH] Baud = 500 kbps
+006h        1000  4  D 06h 66h 21h 03h  Paused ; [BOTH] Baud = 250 kbps
+006h        1000  4  D 06h 66h 22h 02h  Paused ; [BOTH] Group B rate (enum same as 0x20)
+006h        1000  4  D 06h 66h 22h 0Fh  Paused ; [BOTH] Group B DISABLE
+006h        1000  4  D 06h 66h 22h FFh  Paused ; [BOTH] Group B ENABLE
+006h        1000  4  D 06h 66h 23h 02h  Paused ; [BOTH] Group C rate (enum same as 0x20)
+006h        1000  4  D 06h 66h 23h 0Fh  Paused ; [BOTH] Group C DISABLE
+006h        1000  4  D 06h 66h 23h FFh  Paused ; [BOTH] Group C ENABLE
+006h        1000  4  D 06h 66h 24h 02h  Paused ; [INS]  Group D rate (enum same as 0x20)
+006h        1000  4  D 06h 66h 24h 0Fh  Paused ; [INS]  Group D DISABLE
+006h        1000  4  D 06h 66h 24h FFh  Paused ; [INS]  Group D ENABLE
+006h        1000  4  D 06h 66h 25h 02h  Paused ; [INS]  Group E rate (enum same as 0x20)
+006h        1000  4  D 06h 66h 25h 0Fh  Paused ; [INS]  Group E DISABLE
+006h        1000  4  D 06h 66h 25h FFh  Paused ; [INS]  Group E ENABLE
+006h        1000  5  D 06h 66h 26h 07h 90h  Paused ; [BOTH] Change base CAN ID (byte3 <= 0x07, byte4 low). Example -> 0x790 (INS default)
+006h        1000  5  D 06h 66h 26h 06h 90h  Paused ; [BOTH] Change base CAN ID to 0x690 (IMU default)
+; ============================================================================
+; PRO MODE (dual-antenna TURBO) — [INS] only — 0x2F
+; ============================================================================
+006h        1000  4  D 06h 66h 2Fh 00h  Paused ; [INS] PRO Turbo mode DISABLE
+006h        1000  4  D 06h 66h 2Fh 01h  Paused ; [INS] PRO Turbo mode ENABLE
+; ============================================================================
+; GPS SIMULATION — [INS] only — 0x30
+; ============================================================================
+006h        1000  4  D 06h 66h 30h 01h  Paused ; [INS] GPS simulation = MoTeC (takes effect next power cycle)
+006h        1000  4  D 06h 66h 30h 02h  Paused ; [INS] GPS simulation = Emtron
+006h        1000  4  D 06h 66h 30h 03h  Paused ; [INS] GPS simulation = Syvecs
+; ============================================================================
+; IMU MODE (Prodrag) — [IMU] only — 0x31
+; ============================================================================
+006h        1000  4  D 06h 66h 31h 00h  Paused ; [IMU] Prodrag mode DISABLE
+006h        1000  4  D 06h 66h 31h 01h  Paused ; [IMU] Prodrag mode ENABLE
+; ============================================================================
+; DEAD RECKONING (0x40 / 0x41 / 0x42 / 0x43)
+; ============================================================================
+006h        1000  4  D 06h 66h 40h 00h  Paused ; [BOTH] Dead Reckoning DISABLE
+006h        1000  4  D 06h 66h 40h 01h  Paused ; [BOTH] Dead Reckoning ENABLE
+006h        1000  5  D 06h 66h 41h 01h 64h  Paused ; [BOTH] DR distance bias (byte4 * 1e-2, default 0x64 = 1.00)
+006h        1000  5  D 06h 66h 42h 01h 8Ch  Paused ; [INS]  DR entry speed threshold (byte4 * 1e-2 m/s, default 0x8C = 1.40)
+006h        1000  4  D 06h 66h 43h 00h  Paused ; [IMU]  DR alternate ENABLE (legacy)
+006h        1000  4  D 06h 66h 43h 05h  Paused ; [IMU]  DR alternate DISABLE (legacy)
+; ============================================================================
+; ROLLOUT (stage timer entry threshold) — 0x50
+; byte3 is inches (0-255). Persisted to EEPROM.
+; ============================================================================
+006h        1000  4  D 06h 66h 50h 0Eh  Paused ; [BOTH] Rollout = 14 in (~0.356 m, typical drag default)
+006h        1000  4  D 06h 66h 50h 07h  Paused ; [BOTH] Rollout = 7 in (short)
+006h        1000  4  D 06h 66h 50h 10h  Paused ; [BOTH] Rollout = 16 in (long)
+006h        1000  4  D 06h 66h 50h 00h  Paused ; [BOTH] Rollout = 0 in (stage timer starts immediately)
+; ============================================================================
+; SPLIT TIMES CAN TX (persistent feature flag, 10 Hz on msg13/msg14) — 0x51
+; [INS] only. Flag survives power cycles.
+; ============================================================================
+006h        1000  4  D 06h 66h 51h 00h  Paused ; [INS] Split times CAN TX OFF (persisted)
+006h        1000  4  D 06h 66h 51h 01h  Paused ; [INS] Split times CAN TX ON  (persisted, 10 Hz)
+; ============================================================================
+; VELOCITY AIDING — 0x60
+; [INS] uses ID 006h (handled alongside other config).
+; [IMU] uses dedicated ID 007h — bytes 0/1 are ignored, cmd at byte 2.
+; byte4/byte5 = velocity * 100 in m/s, big-endian uint16.
+; ============================================================================
+006h         200  6  D 06h 66h 60h 01h 00h 64h  Paused ; [INS] Velocity aid = 1.00 m/s (max 5 Hz transmit rate!)
+006h         200  6  D 06h 66h 60h 01h 01h 2Ch  Paused ; [INS] Velocity aid = 3.00 m/s
+007h         200  8  D 00h 00h 60h 01h 00h 64h 00h 00h  Paused ; [IMU] Velocity aid = 1.00 m/s on dedicated ID 007h
+007h         200  8  D 00h 00h 60h 01h 01h 2Ch 00h 00h  Paused ; [IMU] Velocity aid = 3.00 m/s on dedicated ID 007h
+; ============================================================================
+; WRITE TO NVME / FACTORY RESET — 0x66 / 0x67
+; ============================================================================
+006h        1000  3  D 06h 66h 66h  Paused ; [BOTH] Write current settings to VN NVME
+006h        1000  3  D 06h 66h 67h  Paused ; [BOTH] Write factory defaults to VN NVME
+; ============================================================================
+; REFERENCE FRAME ROTATION (0xFA) — raw 7-byte encoded RPY
+; ============================================================================
+006h        1000  8  D FAh 00h 00h 00h 00h 00h 00h 00h  Paused ; [BOTH] Reference Frame Rotation (0, 0, 0)
+006h        1000  8  D FAh 04h 8Ah FBh 75h F9h DEh 00h  Paused ; [BOTH] Reference Frame Rotation (+1.16, -1.16, -1.57)
+006h        1000  8  D FAh 06h 22h 00h 00h 00h 00h 00h  Paused ; [BOTH] Reference Frame Rotation (0, 0, +0.785)
+006h        1000  8  D FAh 0Ch 49h 00h 00h 00h 00h 00h  Paused ; [BOTH] Reference Frame Rotation (+3.14, 0, 0)
+; ============================================================================
+; ACCELEROMETER BIAS (0xFB) — advanced entry only
+; ============================================================================
+006h        1000  8  D FBh 00h 00h 00h 00h 00h 00h 00h  Paused ; [BOTH] Accel bias — ADVANCED ENTRY ONLY DO NOT USE
+; ============================================================================
+; SERIAL NUMBER (private) — prefix "fuck" then two bytes
+; ============================================================================
+006h        1000  8  D 66h 75h 63h 6Bh 00h 00h 00h 00h  Paused ; [BOTH] Set serial number (bytes 4/5 = a/b) — PRIVATE
