@@ -294,12 +294,14 @@ def main():
         if count > 1 and deltas:
             duration = sum(deltas)
             avg_rate = (count - 1) / duration if duration > 0 else 0
-            
-            # Calculate Standard Deviation of the intervals
-            avg_interval = duration / len(deltas)
-            variance = sum((x - avg_interval) ** 2 for x in deltas) / (len(deltas) - 1)
-            std_dev_s = math.sqrt(variance)
-            std_dev_ms = std_dev_s * 1000.0
+
+            # Sample stddev needs at least 2 intervals (Bessel's correction)
+            if len(deltas) >= 2:
+                avg_interval = duration / len(deltas)
+                variance = sum((x - avg_interval) ** 2 for x in deltas) / (len(deltas) - 1)
+                std_dev_ms = math.sqrt(variance) * 1000.0
+            else:
+                std_dev_ms = 0.0
         else:
             avg_rate = 0.0
             std_dev_ms = 0.0
